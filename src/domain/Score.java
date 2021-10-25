@@ -1,25 +1,41 @@
 package domain;
 
+import java.util.Arrays;
+
 public class Score {
+	private static final int FIRST_SHOT = 0;
+	private static final int SECOND_SHOT = 1;
+	private static final int FINAL_SHOT = 2;
+	
 	private static final int FINAL_FRAME = 3;
+	private static final int NORMAL_FRAME = 2;
 	
 	private static final int NORMAL_FRAME_FIRST_TURN = 2;
 	
 	private static final int FINAL_FRAME_FIRST_TURN = 3;
 	private static final int FINAL_FRAME_SECOND_TURN = 2;
 	
-	private int firstShot;
-	private int secondShot;
-	private int finalShot;
+	private int [] shotScores;
+	private String state;
 	
 	public Score (int frameState) {
-		firstShot = 0;
-		secondShot = 0;
-		finalShot = frameState == FINAL_FRAME? 0 : -1;
+		if(frameState == FINAL_FRAME) {
+			shotScores = new int [FINAL_FRAME];
+		}
+		shotScores = new int [NORMAL_FRAME];
+		state = "NORMAL";
+	}
+	
+	public String getState() {
+		return state;
+	}
+	
+	public int[] getShotScores() {
+		return shotScores;
 	}
 	
 	public void setScore(int pinCnt, int turn) {
-		if(finalShot != -1) {
+		if(shotScores.length == FINAL_FRAME) {
 			finalFrameSetScore(pinCnt, turn);
 			return;
 		}
@@ -27,34 +43,44 @@ public class Score {
 	}
 	
 	public int getTotalScore() {
-		return firstShot + secondShot + finalShot;
+		return Arrays.stream(shotScores).sum();
 	}
 	
 	public boolean hasFinalTurn() {
-		return firstShot + secondShot >= 10;
+		return shotScores[FIRST_SHOT] + shotScores[SECOND_SHOT] >= 10;
 	}
 	
 	private void finalFrameSetScore(int pinCnt, int turn) {
 		switch(turn) {
 			case FINAL_FRAME_FIRST_TURN:
-				firstShot = pinCnt;
+				shotScores[FIRST_SHOT] = pinCnt;
 				break;
 			case FINAL_FRAME_SECOND_TURN:
-				secondShot = pinCnt;
+				shotScores[SECOND_SHOT] = pinCnt;
 				break;
 			default:
-				finalShot = pinCnt;
+				shotScores[FINAL_FRAME] = pinCnt;
 				break;
 		}
 	}
 	private void normalFrameSetScore(int pinCnt, int turn) {
 		switch(turn) {
 			case NORMAL_FRAME_FIRST_TURN:
-				firstShot = pinCnt;
+				shotScores[FIRST_SHOT] = pinCnt;
 				break;
 			default:
-				secondShot = pinCnt;
+				shotScores[SECOND_SHOT] = pinCnt;
 				break;
+		}
+	}
+	public void setState () {
+		if(shotScores[FIRST_SHOT] == 10) {
+			state = "STRIKE";
+			return;
+		}
+		if(shotScores[FIRST_SHOT] + shotScores[SECOND_SHOT] == 10) {
+			state = "SPAIRE";
+			return;
 		}
 	}
 }
