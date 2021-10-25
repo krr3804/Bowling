@@ -6,8 +6,10 @@ public class NormalFrame implements Frame {
 
 	private int turn;
 	private Score score;
+	private int frameNum;
 
-	public NormalFrame(int frameNumber) {
+	public NormalFrame(int frameNum) {
+		this.frameNum = frameNum;
 		turn = NORMAL_FRAME;
 		score = new Score(turn);
 	}
@@ -23,11 +25,32 @@ public class NormalFrame implements Frame {
 		setTurn(pinCnt);
 	}
 	
+	@Override
+	public int[] getScore() {
+		return score.getShotScores();
+	}
+	
+	@Override
+	public int getTotalScore() {
+		return score.getTotalScore();
+	}
+	
+	@Override
+	public int getFrameNum() {
+		return frameNum;
+	}
+	
+	@Override
+	public String getState() {
+		return score.getState();
+	}
+	
 	private void setScore(int pinCnt) {
 		score.setScore(pinCnt, turn);
 	}
 	
 	private void setTurn(int pinCnt) {
+		score.setState();
 		if (pinCnt == TOTAL_PINS) {
 			turn-=2;
 			return;
